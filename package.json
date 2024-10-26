@@ -1,0 +1,19 @@
+{
+  "name": "com.vklubkov.bulkpackageinstaller",
+  "version": "1.0.0",
+  "displayName": "Bulk Package Installer",
+  "description": "Install and remove NuGet packages, UPM packages and Asset Store assets with single click of a button",
+  "dependencies": {
+    "com.unity.nuget.newtonsoft-json": "3.2.1",
+    "com.unity.editorcoroutines": "1.0.0"
+  },
+  "license": "MIT",
+  "licensesUrl": "https://github.com/marked-one/UnityBulkPackageInstaller?tab=MIT-1-ov-file",
+  "changelogUrl": "https://github.com/marked-one/UnityBulkPackageInstaller/releases",
+  "documentationUrl": "https://github.com/marked-one/UnityBulkPackageInstaller",
+  "author": {
+    "name": "Vladimir Klubkov",
+    "email": "vladimir.gamedev@gmail.com",
+    "url": "https://github.com/marked-one"
+  }
+}

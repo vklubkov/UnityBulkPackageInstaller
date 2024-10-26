@@ -1,0 +1,25 @@
+{
+    "name": "BulkPackageInstaller-Editor",
+    "rootNamespace": "",
+    "references": [
+        "GUID:478a2357cc57436488a56e564b08d223",
+        "GUID:d9149a4e0ef435c45b10905a79471258"
+    ],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [
+        {
+            "name": "com.github-glitchenzo.nugetforunity",
+            "expression": "",
+            "define": "NUGET_FOR_UNITY"
+        }
+    ],
+    "noEngineReferences": false
+}
