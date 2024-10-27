@@ -11,17 +11,17 @@ namespace BulkPackageInstaller {
     [InitializeOnLoad]
     internal class Survivor {
         class CoroutineHost {
-            public void WaitForTwoFrames(Action onComplete) =>
-                EditorCoroutineUtility.StartCoroutine(CoTwoEditorUpdates(onComplete), this);
+            public void WaitForFrame(Action onComplete) =>
+                EditorCoroutineUtility.StartCoroutine(CoOneEditorUpdate(onComplete), this);
 
-            IEnumerator CoTwoEditorUpdates(Action onComplete) {
+            IEnumerator CoOneEditorUpdate(Action onComplete) {
                 yield return null;
                 onComplete?.Invoke();
             }
         }
 
         const string _persistentInfoKey = "BulkPackageInstaller:PersistentInfo";
-        readonly static CoroutineHost _coroutineHost = new();
+        static readonly CoroutineHost _coroutineHost = new();
         static PersistentInfo _persistentInfo = PersistentInfo.Default;
         static bool _shouldResume;
         static string _lastImportedAsset;
@@ -151,6 +151,12 @@ namespace BulkPackageInstaller {
         }
 
         static void InstallNuGetForUnity() {
+            if (_persistentInfo.NuGetInstallationInfo.PackagesToAdd.Length == 0 &&
+                _persistentInfo.NuGetInstallationInfo.PackagesToRemove.Length == 0) {
+                InstallUpmPackages();
+                return;
+            }
+
 #if NUGET_FOR_UNITY
             InstallNuGetPackages();
 #else
@@ -178,7 +184,7 @@ namespace BulkPackageInstaller {
 
             nuGetPackageInstaller.Install(
                 (description, progress) => progressWrapper.Update(description, progress),
-                applyChanges => CompleteStep(progressWrapper, applyChanges, InstallUpmPackages, refreshAssets:true));
+                applyChanges => CompleteStep(progressWrapper, applyChanges, InstallUpmPackages));
 #else
             InstallUpmPackages();
 #endif
@@ -286,19 +292,17 @@ namespace BulkPackageInstaller {
             CompleteStep(progressWrapper, applyChanges: true, Cleanup);
         }
         
-        static void CompleteStep(
-            ProgressWrapper progressWrapper, bool applyChanges, Action onComplete, bool refreshAssets = false) {
+        static void CompleteStep(ProgressWrapper progressWrapper, bool applyChanges, Action onComplete) {
             progressWrapper.Dispose();
             if (!applyChanges) {
                 onComplete?.Invoke();
                 return;
             }
 
-            if (refreshAssets)
-                AssetDatabase.Refresh();
-
-            EditorUtility.RequestScriptReload();
-            _coroutineHost.WaitForTwoFrames(onComplete);
+            _coroutineHost.WaitForFrame(() => {
+               EditorUtility.RequestScriptReload();
+               _coroutineHost.WaitForFrame(onComplete);
+            });
         }
 
         static void Cleanup() {
@@ -307,6 +311,7 @@ namespace BulkPackageInstaller {
             _lastImportedAsset = null;
             EditorUtility.ClearProgressBar();
             Debug.Log("Bulk Package Installer: finished");
+            AssetDatabase.Refresh();
         }
     }
 }

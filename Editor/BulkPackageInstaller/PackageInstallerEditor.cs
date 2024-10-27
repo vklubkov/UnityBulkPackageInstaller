@@ -4,13 +4,25 @@ using UnityEngine;
 namespace BulkPackageInstaller {
     [CustomEditor(typeof(PackageInstaller))]
     internal class PackageInstallerEditor : Editor {
+        const double _checkInterval = 1;
+        double _lastCheckTime;
+        string _cachePath;
+
         public override void OnInspectorGUI() {
             base.OnInspectorGUI();
-
             var packageInstaller = (PackageInstaller)target;
-            var newCachePath = EditorGUILayout.TextField("Asset Store Cache path", packageInstaller.CachePath);
-            if (newCachePath != packageInstaller.CachePath)
-                packageInstaller.UpdateAssetStoreCachePath(newCachePath);
+
+            var timeSinceStartup = EditorApplication.timeSinceStartup;
+            if (timeSinceStartup - _lastCheckTime > _checkInterval) {
+                _lastCheckTime = timeSinceStartup;
+                _cachePath = packageInstaller.CachePath;
+            }
+
+            var newCachePath = EditorGUILayout.TextField("Asset Store Cache path", _cachePath);
+            if (newCachePath != _cachePath)
+                packageInstaller.CachePath = newCachePath;
+
+            _cachePath = newCachePath;
 
             EditorGUILayout.Space(30);
 

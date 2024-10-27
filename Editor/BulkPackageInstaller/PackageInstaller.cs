@@ -9,7 +9,7 @@ namespace BulkPackageInstaller {
     [CreateAssetMenu(fileName = "NewInstaller", menuName = "Bulk Package Installer/New Installer", order = 0)]
     internal class PackageInstaller : ScriptableObject {
         const string _editorPrefsAssetStoreCachePathKey = "BulkPackageInstaller_AssetStoreCachePath";
-        readonly static string _manifestPath = Application.dataPath + "/../Packages/manifest.json";
+        static readonly string _manifestPath = Application.dataPath + "/../Packages/manifest.json";
 
         [SerializeField] List<BasicPackageInfo> _nuGetPackages;
 
@@ -29,11 +29,14 @@ namespace BulkPackageInstaller {
         readonly ManifestBackup _manifestBackup = new(_manifestPath);
         readonly ManifestRestore _manifestRestore = new(_manifestPath);
 
-        public string CachePath { get; private set; }
+        public string CachePath {
+            get => EditorPrefs.GetString(_editorPrefsAssetStoreCachePathKey);
+            set => EditorPrefs.SetString(_editorPrefsAssetStoreCachePathKey, value);
+        }
 
         void OnEnable() {
-            CachePath = EditorPrefs.GetString(_editorPrefsAssetStoreCachePathKey);
-            if (Directory.Exists(CachePath))
+            var storedCachePath = CachePath;
+            if (!string.IsNullOrEmpty(storedCachePath))
                 return;
 
 #if UNITY_EDITOR_WIN
@@ -47,11 +50,8 @@ namespace BulkPackageInstaller {
             var path = Path.Combine(userProfile, ".local/share/unity3d/Asset Store-5.x");
 #endif
 
-            UpdateAssetStoreCachePath(path);
+            CachePath = path;
         }
-
-        public void UpdateAssetStoreCachePath(string path) =>
-            EditorPrefs.SetString(_editorPrefsAssetStoreCachePathKey, path);
 
         public void BackupCurrentManifest() => _manifestBackup.Backup();
 
@@ -61,9 +61,15 @@ namespace BulkPackageInstaller {
         }
 
         public void Install() {
+            var assetsToAdd = PrepareAssetInfo();
+            if (assetsToAdd.Length > 0 && !Directory.Exists(CachePath)) {
+                Debug.LogError($"Bulk Package Installer: asset cache path {CachePath} is not reachable.");
+                return;
+            }
+
             var (scopedRegistriesToAdd, packagesToAdd, packagesToRemove) = PreparePackageInfo();
             var (nuGetPackagesToRemove, nuGetPackagesToAdd) = PrepareNuGetPackageInfo();
-            var assetsToAdd = PrepareAssetInfo();
+
             Survivor.InstallAssets(
                 _manifestPath, _cleanupScopedRegistries, scopedRegistriesToAdd,
                 _nuGetForUnity._scope, nuGetPackagesToRemove, nuGetPackagesToAdd,
