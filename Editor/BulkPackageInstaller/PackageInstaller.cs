@@ -9,7 +9,7 @@ namespace BulkPackageInstaller {
     [CreateAssetMenu(fileName = "NewInstaller", menuName = "Bulk Package Installer/New Installer", order = 0)]
     internal class PackageInstaller : ScriptableObject {
         const string _editorPrefsAssetStoreCachePathKey = "BulkPackageInstaller_AssetStoreCachePath";
-        static readonly string _manifestPath = Application.dataPath + "/../Packages/manifest.json";
+        readonly static string _manifestPath = Application.dataPath + "/../Packages/manifest.json";
 
         [SerializeField] List<BasicPackageInfo> _nuGetPackages;
 
