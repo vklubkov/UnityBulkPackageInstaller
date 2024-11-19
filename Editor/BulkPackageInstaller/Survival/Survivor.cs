@@ -11,10 +11,11 @@ namespace BulkPackageInstaller {
     [InitializeOnLoad]
     internal class Survivor {
         class CoroutineHost {
-            public void WaitForFrame(Action onComplete) =>
-                EditorCoroutineUtility.StartCoroutine(CoOneEditorUpdate(onComplete), this);
+            public void WaitForTwoFrames(Action onComplete) =>
+                EditorCoroutineUtility.StartCoroutine(CoTwoEditorUpdates(onComplete), this);
 
-            IEnumerator CoOneEditorUpdate(Action onComplete) {
+            IEnumerator CoTwoEditorUpdates(Action onComplete) {
+                yield return null;
                 yield return null;
                 onComplete?.Invoke();
             }
@@ -299,9 +300,9 @@ namespace BulkPackageInstaller {
                 return;
             }
 
-            _coroutineHost.WaitForFrame(() => {
+            _coroutineHost.WaitForTwoFrames(() => {
                EditorUtility.RequestScriptReload();
-               _coroutineHost.WaitForFrame(onComplete);
+               _coroutineHost.WaitForTwoFrames(onComplete);
             });
         }
 
