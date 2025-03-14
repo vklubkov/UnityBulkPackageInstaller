@@ -54,7 +54,7 @@ An installer for the [Free Fly Camera](https://assetstore.unity.com/packages/too
 ```
 MIT License
 
-Copyright (c) 2024=2025 Vladimir Klubkov
+Copyright (c) 2024-2025 Vladimir Klubkov
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
